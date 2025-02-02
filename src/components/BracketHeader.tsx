@@ -3,6 +3,7 @@
 import React from 'react';
 import { CardHeader, CardTitle } from '@/components/ui/card';
 import { DialogButton } from '@/components/ui/dialog-button';
+import { ShareButton } from './ShareButton';
 
 interface BracketHeaderProps {
   onInstructionsClick: () => void;
@@ -20,6 +21,7 @@ export const BracketHeader: React.FC<BracketHeaderProps> = ({
       GOOSE JAM BRACKET 2024
     </CardTitle>
     <div className="flex gap-2">
+      <ShareButton />
       <DialogButton onClick={onInstructionsClick}>
         Instructions
       </DialogButton>

@@ -8,12 +8,20 @@ An interactive tournament bracket for tracking and voting on the best Goose Jam 
 
 ## Features
 
-- Interactive bracket UI with 4 regions (Leo, Apollo, Chiron, Manu)
-- Automatic advancement of songs through tournament rounds
-- Persistent state using localStorage
+- Interactive bracket interface for selecting your favorite Goose jams
+- Automatic saving of your progress
+- Shareable URLs to show your picks to others
 - Mobile-responsive design
-- Reset functionality
-- Tournament progression from Round 1 through Finals
+- Clean, modern UI inspired by Ryan Storm's Goose Jam of the Year project
+
+## How to Use
+
+1. Visit the [Goose Bracket](https://goose-bracket.vercel.app/)
+2. Click on your preferred song in each matchup to advance it
+3. Your progress is automatically saved in your browser
+4. Use the Share button to get a URL you can share with others or open your current bracket on a new device
+5. When others open your shared URL, they'll see your bracket exactly as you left it
+6. Click Reset to start over with a fresh bracket
 
 ## Demo
 

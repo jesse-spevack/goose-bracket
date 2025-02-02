@@ -29,9 +29,9 @@ export const InstructionsDialog: React.FC<InstructionsDialogProps> = ({
           <h3 className="text-sm font-semibold text-orange-400">Instructions</h3>
           <ul className="list-disc pl-5 space-y-2">
             <li className="text-sm text-gray-300">Click on a song in each matchup to advance it to the next round</li>
-            <li className="text-sm text-gray-300">Songs will automatically advance when both songs in a matchup are selected</li>
-            <li className="text-sm text-gray-300">Your progress is automatically saved</li>
-            <li className="text-sm text-gray-300">Use the Reset button to start over</li>
+            <li className="text-sm text-gray-300">Your progress is automatically saved in your browser</li>
+            <li className="text-sm text-gray-300">Click the Share button to get a URL that you can share with others or to open your current bracket on a new device</li>
+            <li className="text-sm text-gray-300">Use Reset to start over with a fresh bracket</li>
           </ul>
         </div>
         
