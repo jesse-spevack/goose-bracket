@@ -71,7 +71,7 @@ export const AboutDialog: React.FC<AboutDialogProps> = ({
           </p>
         </div>
       </div>
-      <DialogFooter className="sm:justify-end">
+      <DialogFooter className="flex flex-row justify-end space-x-2">
         <DialogButton onClick={() => onOpenChange(false)}>
           Close
         </DialogButton>

@@ -26,22 +26,25 @@ export const ResetDialog: React.FC<ResetDialogProps> = ({
     <DialogContent>
       <DialogHeader>
         <DialogTitle className="text-2xl font-bold text-orange-400">Reset Bracket</DialogTitle>
-        <DialogDescription className="space-y-2 pt-2">
+      </DialogHeader>
+      <div className="space-y-4">
+        <div className="space-y-2">
           <p className="text-sm text-gray-300">
             Are you sure you want to reset your bracket? This action cannot be undone.
           </p>
-          <p className="text-lg font-semibold text-orange-400">
-            Resetting will:
-          </p>
-          <ul className="list-disc pl-5 space-y-2 text-gray-300">
-            <li className="text-sm">Clear all your song selections</li>
-            <li className="text-sm">Return all regions to their initial state</li>
-            <li className="text-sm">Remove any songs from the finals</li>
-            <li className="text-sm">Allow you to start fresh with a new bracket</li>
+        </div>
+
+        <div className="space-y-2">
+          <h3 className="text-sm font-semibold text-orange-400">What Will Change</h3>
+          <ul className="list-disc pl-5 space-y-2">
+            <li className="text-sm text-gray-300">Clear all your song selections</li>
+            <li className="text-sm text-gray-300">Return all regions to their initial state</li>
+            <li className="text-sm text-gray-300">Remove any songs from the finals</li>
+            <li className="text-sm text-gray-300">Allow you to start fresh with a new bracket</li>
           </ul>
-        </DialogDescription>
-      </DialogHeader>
-      <DialogFooter className="sm:justify-end">
+        </div>
+      </div>
+      <DialogFooter className="flex flex-row justify-end space-x-2">
         <DialogButton
           variant="ghost"
           onClick={() => onOpenChange(false)}

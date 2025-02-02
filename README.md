@@ -1,6 +1,10 @@
 # Goose Jam Bracket 2024
 
-An interactive tournament bracket for tracking and voting on the best Goose concert performances of 2024. Inspired by NCAA March Madness brackets, this tool lets fans advance their favorite versions of songs through a tournament-style elimination bracket.
+An interactive tournament bracket for tracking and voting on the best Goose Jam performances of 2024. Inspired by Ryan Storm's Goose Jam of the Year [project](https://substack.com/home/post/p-153334990), this tool lets fans advance their favorite versions of songs through a tournament-style elimination bracket.
+
+## Play
+
+[View the demo](https://goose-bracket.vercel.app/)
 
 ## Features
 
@@ -13,29 +17,29 @@ An interactive tournament bracket for tracking and voting on the best Goose conc
 
 ## Demo
 
-[Add screenshot or link to live demo when available]
+![Goose Bracket Demo](public/images/demo-screenshot.png)
+
+A tournament-style bracket for selecting your favorite Goose jams of 2024.
 
 ## Getting Started
 
 ### Prerequisites
 
 - Node.js (v14 or later)
-- npm or yarn
+- npm
 - A modern web browser
 
 ### Installation
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/goose-jam-bracket.git
-cd goose-jam-bracket
+git clone https://github.com/jesse-spevack/goose-bracket.git
+cd goose-bracket
 ```
 
 2. Install dependencies:
 ```bash
 npm install
-# or
-yarn install
 ```
 
 3. Install required shadcn/ui components:
@@ -47,8 +51,6 @@ npx shadcn-ui@latest add button
 4. Start the development server:
 ```bash
 npm run dev
-# or
-yarn dev
 ```
 
 5. Open your browser and navigate to `http://localhost:3000`
@@ -94,7 +96,7 @@ newRegion: [
 
 ### Styling
 
-The project uses Tailwind CSS for styling. Modify the class names in the components to customize the appearance.
+The project uses Tailwind CSS for styling and models after the bracket on Ryan Storm's [Goose Jam of the Year](https://substackcdn.com/image/fetch/f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F0a689a70-11e9-4575-8dfa-ddd5d2a86c57_3300x1800.jpeg) project.
 
 ## Contributing
 
@@ -120,8 +122,3 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 - Inspired by NCAA March Madness brackets
 - Built for the Goose community
 - Thanks to all contributors and fans who help make this better
-
-## Contact
-
-Your Name - [@yourtwitter](https://twitter.com/yourtwitter)
-Project Link: [https://github.com/yourusername/goose-jam-bracket](https://github.com/yourusername/goose-jam-bracket)
