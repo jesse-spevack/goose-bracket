@@ -41,14 +41,16 @@ export const BracketProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setIsClient(true);
     try {
       // Check URL for shared state first
-      const params = new URLSearchParams(window.location.search);
-      const encoded = params.get('state');
-      
-      if (encoded) {
-        const decodedState = ShareService.decodeState(encoded);
-        if (decodedState) {
-          setBracketManager(new BracketManager(decodedState));
-          return;
+      if (typeof window !== 'undefined') {
+        const params = new URLSearchParams(window.location.search);
+        const encoded = params.get('state');
+        
+        if (encoded) {
+          const decodedState = ShareService.decodeState(encoded);
+          if (decodedState) {
+            setBracketManager(new BracketManager(decodedState));
+            return;
+          }
         }
       }
       
@@ -91,7 +93,9 @@ export const BracketProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const resetBracket = () => {
     try {
       setBracketManager(new BracketManager(INITIAL_BRACKET_DATA));
-      window.history.replaceState({}, '', window.location.pathname);
+      if (typeof window !== 'undefined') {
+        window.history.replaceState({}, '', window.location.pathname);
+      }
     } catch (error) {
       console.error('Failed to reset bracket:', error);
     }
@@ -99,13 +103,17 @@ export const BracketProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const generateShareableUrl = (): string => {
     try {
+      if (typeof window === 'undefined') {
+        return '';
+      }
+      
       const state = bracketManager.getData();
       const encoded = ShareService.encodeState(state);
       const baseUrl = window.location.href.split('?')[0];
       return `${baseUrl}?state=${encoded}`;
     } catch (error) {
       console.error('Failed to generate shareable URL:', error);
-      return window.location.href;
+      return '';
     }
   };
 
