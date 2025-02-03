@@ -63,7 +63,7 @@ export class BracketStorage {
 
   loadDocsVisibility(): boolean {
     try {
-      const stored = localStorage.getItem(DOCS_KEY);
+      const stored = localStorage.getItem(BracketStorage.DOCS_KEY);
       return stored ? JSON.parse(stored) : true;
     } catch (error) {
       throw new StorageError('Failed to load docs visibility from storage', error);
@@ -72,7 +72,7 @@ export class BracketStorage {
 
   saveDocsVisibility(isVisible: boolean): void {
     try {
-      localStorage.setItem(DOCS_KEY, JSON.stringify(isVisible));
+      localStorage.setItem(BracketStorage.DOCS_KEY, JSON.stringify(isVisible));
     } catch (error) {
       throw new StorageError('Failed to save docs visibility to storage', error);
     }
