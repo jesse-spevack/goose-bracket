@@ -54,9 +54,8 @@ export class BracketService {
         newBracket.finals[matchIndex][songIndex] = song;
       }
     } else {
-      const nextRound = BRACKET_CONSTANTS.ROUNDS.REGIONAL[
-        BRACKET_CONSTANTS.ROUNDS.REGIONAL.indexOf(round as keyof typeof BRACKET_CONSTANTS.ROUNDS.REGIONAL) + 1
-      ];
+      const roundIndex = BRACKET_CONSTANTS.ROUNDS.REGIONAL.indexOf(round as 'round1' | 'round2' | 'round3' | 'round4');
+      const nextRound = BRACKET_CONSTANTS.ROUNDS.REGIONAL[roundIndex + 1] as keyof Pick<BracketData, 'round1' | 'round2' | 'round3' | 'round4'>;
       if (nextRound) {
         newBracket[nextRound][region][Math.floor(matchIndex / 2)][matchIndex % 2] = song;
       }
