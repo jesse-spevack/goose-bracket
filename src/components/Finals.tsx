@@ -3,48 +3,61 @@
 import React from 'react';
 import { BracketData, Song } from '../types/bracket';
 import { Match } from './Match';
+import { styles } from './ui/styles';
+import { BRACKET_CONSTANTS } from './constants';
+import { cn } from '@/lib/utils';
 
 interface FinalsProps {
   bracket: BracketData;
   onSelect: (round: string, region: 'finals', matchIndex: number, songIndex: number, song: Song) => void;
 }
 
-export const Finals: React.FC<FinalsProps> = ({ bracket, onSelect }) => (
-  <div className="flex flex-col bg-gray-800/50 p-4 rounded-lg">
-    <h3 className="text-2xl font-bold mb-6 text-orange-400 text-center border-b border-orange-200/20 pb-2">
-      CHAMPIONSHIP ROUNDS
-    </h3>
-    
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-      <div className="space-y-6">
-        <h4 className="text-lg font-semibold text-orange-400 text-center border-b border-orange-200/20 pb-2">
-          Semifinals
-        </h4>
-        <div className="space-y-6">
-          {bracket.semifinals.map((match, idx) => (
-            <div key={`sf-${idx}`} className="space-y-2">
-              <div className="text-sm text-orange-300/80 pl-2">Match {idx + 1}</div>
+export const Finals: React.FC<FinalsProps> = ({ bracket, onSelect }) => {
+  // Get the selected song for a semifinals match by checking the finals
+  const getSelectedSong = (matchIndex: number): Song => {
+    return bracket.finals[Math.floor(matchIndex / 2)][matchIndex % 2];
+  };
+
+  return (
+    <div className={styles.container.bracket}>
+      <h3 className={cn(styles.heading.primary, styles.border.separator, styles.layout.header)}>
+        FINALS
+      </h3>
+      <div className={styles.container.section}>
+        {/* Semifinals */}
+        <div>
+          <h4 className={cn(styles.heading.secondary, styles.border.separator, styles.layout.header)}>
+            {BRACKET_CONSTANTS.ROUND_NAMES.FINALS[0]}
+          </h4>
+          <div className={styles.layout.content}>
+            {bracket.semifinals.map((match, idx) => (
               <Match
+                key={`semifinals-${idx}`}
                 songs={match}
                 onSelect={(song, songIndex) => onSelect('semifinals', 'finals', idx, songIndex, song)}
+                selectedSong={getSelectedSong(idx)}
               />
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
-
-      <div className="space-y-6">
-        <h4 className="text-lg font-semibold text-orange-400 text-center border-b border-orange-200/20 pb-2">
-          Championship
-        </h4>
-        <div className="space-y-2">
-          <div className="text-sm text-orange-300/80 pl-2">Final Match</div>
-          <Match
-            songs={bracket.finals[0]}
-            onSelect={(song, songIndex) => onSelect('finals', 'finals', 0, songIndex, song)}
-          />
+        
+        {/* Finals */}
+        <div className="lg:max-w-[33%] lg:mx-auto">
+          <h4 className={cn(styles.heading.secondary, styles.border.separator, styles.layout.header)}>
+            {BRACKET_CONSTANTS.ROUND_NAMES.FINALS[1]}
+          </h4>
+          <div className={styles.layout.content}>
+            {bracket.finals.map((match, idx) => (
+              <Match
+                key={`finals-${idx}`}
+                songs={match}
+                onSelect={(song, songIndex) => onSelect('finals', 'finals', idx, songIndex, song)}
+                selectedSong={null} // No next round for finals
+              />
+            ))}
+          </div>
         </div>
       </div>
     </div>
-  </div>
-);
+  );
+};

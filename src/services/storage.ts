@@ -1,56 +1,88 @@
 import { BracketData } from '../types/bracket';
 
-export interface StorageService {
-  loadItem<T>(key: string): T | null;
-  saveItem<T>(key: string, value: T): void;
+export class StorageError extends Error {
+  constructor(message: string, public readonly cause?: unknown) {
+    super(message);
+    this.name = 'StorageError';
+  }
 }
 
-export class LocalStorageService implements StorageService {
-  loadItem<T>(key: string): T | null {
-    if (typeof window === 'undefined') return null;
-    
+/**
+ * Service for managing local storage operations
+ */
+export class StorageService {
+  private static STORAGE_KEY = 'goose-bracket';
+
+  /**
+   * Save bracket data to local storage
+   */
+  static saveBracket(bracket: BracketData): void {
     try {
-      const saved = localStorage.getItem(key);
-      return saved ? JSON.parse(saved) : null;
-    } catch (e) {
-      console.error(`Failed to load item ${key}:`, e);
-      return null;
+      localStorage.setItem(
+        this.STORAGE_KEY,
+        JSON.stringify(bracket)
+      );
+    } catch (error) {
+      throw new StorageError('Failed to save bracket to storage', error);
     }
   }
 
-  saveItem<T>(key: string, value: T): void {
-    if (typeof window === 'undefined') return;
-    
+  /**
+   * Load bracket data from local storage
+   */
+  static loadBracket(): BracketData | null {
     try {
-      localStorage.setItem(key, JSON.stringify(value));
-    } catch (e) {
-      console.error(`Failed to save item ${key}:`, e);
+      const stored = localStorage.getItem(this.STORAGE_KEY);
+      return stored ? JSON.parse(stored) : null;
+    } catch (error) {
+      throw new StorageError('Failed to load bracket from storage', error);
     }
+  }
+
+  /**
+   * Clear bracket data from local storage
+   */
+  static clearBracket(): void {
+    try {
+      localStorage.removeItem(this.STORAGE_KEY);
+    } catch (error) {
+      throw new StorageError('Failed to clear bracket from storage', error);
+    }
+  }
+
+  /**
+   * Check if bracket data exists in local storage
+   */
+  static hasBracket(): boolean {
+    return !!localStorage.getItem(this.STORAGE_KEY);
   }
 }
 
 export class BracketStorage {
-  private static readonly BRACKET_KEY = 'goose-bracket-2024';
   private static readonly DOCS_KEY = 'goose-bracket-docs-visibility';
-  private storage: StorageService;
-
-  constructor(storage: StorageService) {
-    this.storage = storage;
-  }
-
-  loadBracket(defaultData: BracketData): BracketData {
-    return this.storage.loadItem<BracketData>(BracketStorage.BRACKET_KEY) ?? defaultData;
-  }
-
-  saveBracket(data: BracketData): void {
-    this.storage.saveItem(BracketStorage.BRACKET_KEY, data);
-  }
 
   loadDocsVisibility(): boolean {
-    return this.storage.loadItem<boolean>(BracketStorage.DOCS_KEY) ?? true;
+    try {
+      const stored = localStorage.getItem(DOCS_KEY);
+      return stored ? JSON.parse(stored) : true;
+    } catch (error) {
+      throw new StorageError('Failed to load docs visibility from storage', error);
+    }
   }
 
   saveDocsVisibility(isVisible: boolean): void {
-    this.storage.saveItem(BracketStorage.DOCS_KEY, isVisible);
+    try {
+      localStorage.setItem(DOCS_KEY, JSON.stringify(isVisible));
+    } catch (error) {
+      throw new StorageError('Failed to save docs visibility to storage', error);
+    }
+  }
+
+  loadBracket(defaultData: BracketData): BracketData {
+    return StorageService.loadBracket() ?? defaultData;
+  }
+
+  saveBracket(data: BracketData): void {
+    StorageService.saveBracket(data);
   }
 }

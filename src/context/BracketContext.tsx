@@ -1,18 +1,16 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { BracketData, Region, Song } from '../types/bracket';
-import { INITIAL_BRACKET_DATA } from '../utils/bracketUtils';
-import { BracketManager } from '../domain/bracket';
-import { BracketStorage, LocalStorageService } from '../services/storage';
+import { StorageService } from '../services/storage';
+import { BracketService } from '../services/bracketService';
 import { ShareService } from '../services/shareService';
+import { initialBracket } from '../config/constants';
 
-/**
- * Interface defining the shape of the bracket context.
- * Contains methods for managing bracket state and user interactions.
- */
 interface BracketContextType {
   bracket: BracketData;
+  isLoading: boolean;
+  error: Error | null;
   handleSongSelect: (
     round: string,
     region: Region | 'finals',
@@ -24,57 +22,55 @@ interface BracketContextType {
   generateShareableUrl: () => string;
 }
 
-const BracketContext = createContext<BracketContextType | undefined>(undefined);
+const BracketContext = createContext<BracketContextType | null>(null);
 
-/**
- * Provider component for managing bracket state and operations.
- * Handles state persistence, URL sharing, and bracket interactions.
- */
-export const BracketProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [bracketManager, setBracketManager] = useState(() => new BracketManager(INITIAL_BRACKET_DATA));
-  const [isClient, setIsClient] = useState(false);
-  
-  const storage = new BracketStorage(new LocalStorageService());
+export const useBracket = () => {
+  const context = useContext(BracketContext);
+  if (!context) {
+    throw new Error('useBracket must be used within a BracketProvider');
+  }
+  return context;
+};
 
-  // Initialize bracket state from URL or local storage
+interface BracketProviderProps {
+  children: React.ReactNode;
+}
+
+export const BracketProvider: React.FC<BracketProviderProps> = ({ children }) => {
+  const [bracket, setBracket] = useState<BracketData>(initialBracket);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
   useEffect(() => {
-    setIsClient(true);
-    try {
-      // Check URL for shared state first
-      if (typeof window !== 'undefined') {
-        const params = new URLSearchParams(window.location.search);
-        const encoded = params.get('state');
-        
-        if (encoded) {
-          const decodedState = ShareService.decodeState(encoded);
-          if (decodedState) {
-            setBracketManager(new BracketManager(decodedState));
-            return;
-          }
+    const loadBracket = () => {
+      try {
+        setIsLoading(true);
+        const savedBracket = StorageService.loadBracket();
+        if (savedBracket) {
+          setBracket(savedBracket);
         }
+      } catch (err) {
+        setError(err instanceof Error ? err : new Error('Failed to load bracket'));
+        console.error('Failed to load bracket:', err);
+      } finally {
+        setIsLoading(false);
       }
-      
-      // Fall back to local storage if no shared state
-      const savedData = storage.loadBracket(INITIAL_BRACKET_DATA);
-      setBracketManager(new BracketManager(savedData));
-    } catch (error) {
-      console.error('Failed to initialize bracket state:', error);
-      setBracketManager(new BracketManager(INITIAL_BRACKET_DATA));
-    }
+    };
+
+    loadBracket();
   }, []);
 
-  // Save bracket state to local storage when it changes
   useEffect(() => {
-    if (isClient) {
+    if (!isLoading && !error) {
       try {
-        storage.saveBracket(bracketManager.getData());
-      } catch (error) {
-        console.error('Failed to save bracket state:', error);
+        StorageService.saveBracket(bracket);
+      } catch (err) {
+        console.error('Failed to save bracket:', err);
       }
     }
-  }, [isClient, bracketManager]);
+  }, [bracket, isLoading, error]);
 
-  const handleSongSelect = (
+  const handleSelect = (
     round: string,
     region: Region | 'finals',
     matchIndex: number,
@@ -82,59 +78,54 @@ export const BracketProvider: React.FC<{ children: React.ReactNode }> = ({ child
     song: Song
   ) => {
     try {
-      const updatedManager = new BracketManager(bracketManager.getData());
-      updatedManager.selectSong(round, region, matchIndex, songIndex, song);
-      setBracketManager(updatedManager);
-    } catch (error) {
-      console.error('Failed to update song selection:', error);
+      const updatedBracket = BracketService.updateBracketWithSelection(
+        bracket,
+        round,
+        region,
+        matchIndex,
+        songIndex,
+        song
+      );
+      setBracket(updatedBracket);
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Failed to update bracket'));
+      console.error('Failed to update bracket:', err);
     }
   };
 
   const resetBracket = () => {
     try {
-      setBracketManager(new BracketManager(INITIAL_BRACKET_DATA));
-      if (typeof window !== 'undefined') {
-        window.history.replaceState({}, '', window.location.pathname);
-      }
-    } catch (error) {
-      console.error('Failed to reset bracket:', error);
+      const resetData = BracketService.resetBracket(initialBracket);
+      setBracket(resetData);
+      StorageService.clearBracket();
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Failed to reset bracket'));
+      console.error('Failed to reset bracket:', err);
     }
   };
 
-  const generateShareableUrl = (): string => {
+  const generateShareableUrl = () => {
     try {
-      if (typeof window === 'undefined') {
-        return '';
-      }
-      
-      const state = bracketManager.getData();
-      const encoded = ShareService.encodeState(state);
-      const baseUrl = window.location.href.split('?')[0];
-      return `${baseUrl}?state=${encoded}`;
-    } catch (error) {
-      console.error('Failed to generate shareable URL:', error);
+      return ShareService.generateShareableUrl(bracket);
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Failed to generate shareable URL'));
+      console.error('Failed to generate shareable URL:', err);
       return '';
     }
   };
 
-  const value = {
-    bracket: bracketManager.getData(),
-    handleSongSelect,
-    resetBracket,
-    generateShareableUrl,
-  };
-
-  return <BracketContext.Provider value={value}>{children}</BracketContext.Provider>;
-};
-
-/**
- * Custom hook for accessing the bracket context.
- * @throws Error if used outside of BracketProvider
- */
-export const useBracket = (): BracketContextType => {
-  const context = useContext(BracketContext);
-  if (context === undefined) {
-    throw new Error('useBracket must be used within a BracketProvider');
-  }
-  return context;
+  return (
+    <BracketContext.Provider
+      value={{
+        bracket,
+        isLoading,
+        error,
+        handleSongSelect: handleSelect,
+        resetBracket,
+        generateShareableUrl,
+      }}
+    >
+      {children}
+    </BracketContext.Provider>
+  );
 };

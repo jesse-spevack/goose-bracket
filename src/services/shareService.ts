@@ -1,8 +1,25 @@
 import { BracketData } from '../types/bracket';
+import { BRACKET_CONSTANTS } from '../config/constants';
 
 /**
  * Service for handling the encoding and decoding of bracket state for URL sharing.
  * Uses base64 encoding with URL-safe character replacements.
+ */
+export class ShareError extends Error {
+  constructor(message: string, public readonly cause?: unknown) {
+    super(message);
+    this.name = 'ShareError';
+  }
+}
+
+interface ShareOptions {
+  title?: string;
+  text?: string;
+  url: string;
+}
+
+/**
+ * Service for managing share functionality
  */
 export class ShareService {
   private static readonly BASE64_REPLACEMENTS = {
@@ -20,7 +37,7 @@ export class ShareService {
    * Encodes the bracket state into a URL-safe string.
    * @param state - The bracket state to encode
    * @returns URL-safe base64 encoded string
-   * @throws Error if state cannot be stringified
+   * @throws ShareError if state cannot be stringified
    */
   static encodeState(state: BracketData): string {
     try {
@@ -33,8 +50,7 @@ export class ShareService {
         base64
       );
     } catch (error) {
-      console.error('Failed to encode state:', error);
-      throw new Error('Failed to encode bracket state');
+      throw new ShareError('Failed to encode state', error);
     }
   }
 
@@ -53,8 +69,7 @@ export class ShareService {
       const jsonString = atob(base64);
       return JSON.parse(jsonString) as BracketData;
     } catch (error) {
-      console.error('Failed to decode state:', error);
-      return null;
+      throw new ShareError('Failed to decode state', error);
     }
   }
 
@@ -77,5 +92,80 @@ export class ShareService {
     }
     
     return obj;
+  }
+
+  /**
+   * Generates a shareable URL for the current bracket state
+   * @param bracket - The current bracket state to share
+   * @returns A shareable URL containing the encoded bracket state
+   */
+  public static generateShareableUrl(bracket: BracketData): string {
+    try {
+      const encoded = this.encodeState(bracket);
+      const url = new URL(window.location.href);
+      url.searchParams.set('b', encoded);
+      return url.toString();
+    } catch (error) {
+      throw new ShareError('Failed to generate shareable URL', error);
+    }
+  }
+
+  /**
+   * Share bracket using the native share API if available
+   */
+  static async shareNative(options: ShareOptions): Promise<void> {
+    try {
+      if (!navigator.share) {
+        throw new ShareError('Native share not supported');
+      }
+      
+      await navigator.share({
+        title: options.title || BRACKET_CONSTANTS.SHARE.TITLE,
+        text: options.text || BRACKET_CONSTANTS.SHARE.TEXT,
+        url: options.url,
+      });
+    } catch (error) {
+      if ((error as Error).name === 'AbortError') {
+        // User cancelled share, not an error
+        return;
+      }
+      throw new ShareError('Failed to share bracket', error);
+    }
+  }
+
+  /**
+   * Copy share URL to clipboard
+   */
+  static async copyToClipboard(url: string): Promise<void> {
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch (error) {
+      throw new ShareError('Failed to copy URL to clipboard', error);
+    }
+  }
+
+  /**
+   * Create a shareable URL for the bracket
+   */
+  static createShareUrl(bracket: BracketData): string {
+    try {
+      const bracketParam = encodeURIComponent(JSON.stringify(bracket));
+      return `${window.location.origin}?bracket=${bracketParam}`;
+    } catch (error) {
+      throw new ShareError('Failed to create share URL', error);
+    }
+  }
+
+  /**
+   * Parse a bracket from a share URL
+   */
+  static parseBracketFromUrl(url: string): BracketData | null {
+    try {
+      const params = new URLSearchParams(new URL(url).search);
+      const bracketParam = params.get('bracket');
+      return bracketParam ? JSON.parse(decodeURIComponent(bracketParam)) : null;
+    } catch (error) {
+      throw new ShareError('Failed to parse bracket from URL', error);
+    }
   }
 }

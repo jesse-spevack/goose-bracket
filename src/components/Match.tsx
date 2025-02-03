@@ -2,26 +2,32 @@
 
 import React from 'react';
 import { Song } from '../types/bracket';
+import { styles } from './ui/styles';
+import { cn } from '@/lib/utils';
 
 interface MatchProps {
   songs: [Song, Song];
   onSelect: (song: Song, index: number) => void;
+  selectedSong?: Song;  // The song that was selected from this match
 }
 
-export const Match: React.FC<MatchProps> = ({ songs, onSelect }) => (
+export const Match: React.FC<MatchProps> = ({ songs, onSelect, selectedSong }) => (
   <div className="flex flex-col gap-2">
     {songs.map((song, idx) => {
       const displayText = song || '___';
+      const isSelected = song && song === selectedSong;
       return (
         <button
           key={idx}
           onClick={() => onSelect(song, idx)}
-          className={`
-            px-3 py-2 text-sm font-medium rounded-md transition-colors w-full sm:w-48
-            ${song 
-              ? 'bg-gray-800 hover:bg-gray-700 text-orange-400 border border-orange-400/50 hover:border-orange-400' 
-              : 'bg-gray-700/50 text-gray-500 border border-gray-600 cursor-not-allowed'}
-          `}
+          className={cn(
+            styles.button.base,
+            song
+              ? isSelected
+                ? styles.button.song.selected
+                : styles.button.song.active
+              : styles.button.song.disabled
+          )}
           disabled={!song}
         >
           {displayText}
