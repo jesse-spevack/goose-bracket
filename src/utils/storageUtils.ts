@@ -1,5 +1,6 @@
 import { BracketData } from '../types/bracket';
-import { STORAGE_KEY, INITIAL_BRACKET_DATA } from './bracketUtils';
+import { INITIAL_BRACKET_DATA } from '../config/constants';
+import { BRACKET_CONSTANTS } from '../config/constants';
 
 const DOCS_VISIBILITY_KEY = 'goose-bracket-docs-visibility';
 
@@ -10,7 +11,7 @@ export const loadBracketData = (): BracketData => {
   }
   
   try {
-    const saved = localStorage.getItem(STORAGE_KEY);
+    const saved = localStorage.getItem(BRACKET_CONSTANTS.STORAGE.BRACKET_KEY);
     return saved ? JSON.parse(saved) : INITIAL_BRACKET_DATA;
   } catch (e) {
     console.error('Failed to load bracket:', e);
@@ -22,7 +23,7 @@ export const saveBracketData = (bracket: BracketData): void => {
   if (typeof window === 'undefined') return;
   
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(bracket));
+    localStorage.setItem(BRACKET_CONSTANTS.STORAGE.BRACKET_KEY, JSON.stringify(bracket));
   } catch (e) {
     console.error('Failed to save bracket:', e);
   }

@@ -11,7 +11,7 @@ export class StorageError extends Error {
  * Service for managing local storage operations
  */
 export class StorageService {
-  private static STORAGE_KEY = 'goose-bracket';
+  private static STORAGE_KEY = BRACKET_CONSTANTS.STORAGE.BRACKET_KEY;
 
   /**
    * Save bracket data to local storage
