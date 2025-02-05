@@ -101,6 +101,9 @@ export class ShareService {
    */
   public static generateShareableUrl(bracket: BracketData): string {
     try {
+      if (typeof window === 'undefined') {
+        return ''; // Return empty string when running on server
+      }
       const encoded = this.encodeState(bracket);
       const url = new URL(window.location.href);
       url.searchParams.set('b', encoded);
@@ -115,7 +118,10 @@ export class ShareService {
    */
   static async shareNative(options: ShareOptions): Promise<void> {
     try {
-      if (!navigator.share) {
+      if (typeof window === 'undefined') {
+        return; // Skip on server
+      }
+      if (!navigator?.share) {
         throw new ShareError('Native share not supported');
       }
       
@@ -138,7 +144,10 @@ export class ShareService {
    */
   static async copyToClipboard(url: string): Promise<void> {
     try {
-      await navigator.clipboard.writeText(url);
+      if (typeof window === 'undefined') {
+        return; // Skip on server
+      }
+      await navigator?.clipboard?.writeText(url);
     } catch (error) {
       throw new ShareError('Failed to copy URL to clipboard', error);
     }
@@ -149,6 +158,9 @@ export class ShareService {
    */
   static createShareUrl(bracket: BracketData): string {
     try {
+      if (typeof window === 'undefined') {
+        return ''; // Return empty string when running on server
+      }
       const bracketParam = encodeURIComponent(JSON.stringify(bracket));
       return `${window.location.origin}?bracket=${bracketParam}`;
     } catch (error) {

@@ -1,4 +1,5 @@
 import { BracketData } from '../types/bracket';
+import { BRACKET_CONSTANTS } from '../config/constants';
 
 export class StorageError extends Error {
   constructor(message: string, public readonly cause?: unknown) {

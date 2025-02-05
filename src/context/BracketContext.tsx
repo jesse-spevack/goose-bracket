@@ -5,7 +5,7 @@ import { BracketData, Region, Song } from '../types/bracket';
 import { StorageService } from '../services/storage';
 import { BracketService } from '../services/bracketService';
 import { ShareService } from '../services/shareService';
-import { initialBracket } from '../config/constants';
+import { INITIAL_BRACKET_DATA } from '../config/constants';
 
 interface BracketContextType {
   bracket: BracketData;
@@ -37,7 +37,7 @@ interface BracketProviderProps {
 }
 
 export const BracketProvider: React.FC<BracketProviderProps> = ({ children }) => {
-  const [bracket, setBracket] = useState<BracketData>(initialBracket);
+  const [bracket, setBracket] = useState<BracketData>(INITIAL_BRACKET_DATA);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
@@ -95,7 +95,7 @@ export const BracketProvider: React.FC<BracketProviderProps> = ({ children }) =>
 
   const resetBracket = () => {
     try {
-      const resetData = BracketService.resetBracket(initialBracket);
+      const resetData = BracketService.resetBracket(INITIAL_BRACKET_DATA);
       setBracket(resetData);
       StorageService.clearBracket();
     } catch (err) {
