@@ -4,7 +4,7 @@ import React from 'react';
 import { Region, BracketData, Song } from '../types/bracket';
 import { Match } from './Match';
 import { styles } from './ui/styles';
-import { BRACKET_CONSTANTS } from './constants';
+import { BRACKET_CONSTANTS } from '../config/constants';
 import { cn } from '@/lib/utils';
 
 interface RegionBracketProps {
